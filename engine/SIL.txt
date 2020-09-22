@@ -1,0 +1,928 @@
+//
+// Deemo Engine
+// For Sonolus 0.4.6
+//
+// A recreation of Deemo engine
+// By Burrito
+//
+
+
+
+// Note Class
+
+IsNoteOnScreen:LessOr(Subtract(NoteTime Time) NoteScreenTime)
+
+InitNote:Execute(
+	And(
+		Equal(NoteSlot 1)
+		Execute(
+			Set(EntityMemory *NoteX -0.75)
+			Set(EntityMemory *NoteY 0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 2)
+		Execute(
+			Set(EntityMemory *NoteX -0.25)
+			Set(EntityMemory *NoteY 0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 3)
+		Execute(
+			Set(EntityMemory *NoteX 0.25)
+			Set(EntityMemory *NoteY 0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 4)
+		Execute(
+			Set(EntityMemory *NoteX 0.75)
+			Set(EntityMemory *NoteY 0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 5)
+		Execute(
+			Set(EntityMemory *NoteX -0.75)
+			Set(EntityMemory *NoteY 0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 6)
+		Execute(
+			Set(EntityMemory *NoteX -0.25)
+			Set(EntityMemory *NoteY 0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 7)
+		Execute(
+			Set(EntityMemory *NoteX 0.25)
+			Set(EntityMemory *NoteY 0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 8)
+		Execute(
+			Set(EntityMemory *NoteX 0.75)
+			Set(EntityMemory *NoteY 0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 9)
+		Execute(
+			Set(EntityMemory *NoteX -0.75)
+			Set(EntityMemory *NoteY -0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 10)
+		Execute(
+			Set(EntityMemory *NoteX -0.25)
+			Set(EntityMemory *NoteY -0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 11)
+		Execute(
+			Set(EntityMemory *NoteX 0.25)
+			Set(EntityMemory *NoteY -0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 12)
+		Execute(
+			Set(EntityMemory *NoteX 0.75)
+			Set(EntityMemory *NoteY -0.25)
+		)
+	)
+	And(
+		Equal(NoteSlot 13)
+		Execute(
+			Set(EntityMemory *NoteX -0.75)
+			Set(EntityMemory *NoteY -0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 14)
+		Execute(
+			Set(EntityMemory *NoteX -0.25)
+			Set(EntityMemory *NoteY -0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 15)
+		Execute(
+			Set(EntityMemory *NoteX 0.25)
+			Set(EntityMemory *NoteY -0.75)
+		)
+	)
+	And(
+		Equal(NoteSlot 16)
+		Execute(
+			Set(EntityMemory *NoteX 0.75)
+			Set(EntityMemory *NoteY -0.75)
+		)
+	)
+)
+
+IsNoteInGoodWindow:LessOr(Subtract(NoteTime Subtract(Time InputOffset)) GoodWindow)
+
+UpdateNoteTimeDistance:Set(EntityMemory *NoteTimeDistance Subtract(Time NoteTime))
+
+
+PlayTapEffect:And(
+    NoteEffect
+    Execute(
+        SpawnParticleEffect(
+            Add(NoteParticle If(Less(Judgment 1) 1 Judgment))
+			Subtract(NoteX 0.2) Subtract(NoteY 0.2)
+			Subtract(NoteX 0.2) Add(NoteY 0.2)
+			Add(NoteX 0.2) Add(NoteY 0.2)
+			Add(NoteX 0.2) Subtract(NoteY 0.2)
+            0.3
+            0
+        )
+    )
+)
+
+PlayNoteEffect:And(
+    Execute(
+		Set(EntityMemory *EffectID
+			SpawnParticleEffect(
+				NoteParticle
+				Subtract(NoteX 0.2) Subtract(NoteY 0.2)
+				Subtract(NoteX 0.2) Add(NoteY 0.2)
+				Add(NoteX 0.2) Add(NoteY 0.2)
+				Add(NoteX 0.2) Subtract(NoteY 0.2)
+				Divide(4.5605 NoteSpeed)
+				0
+			)
+		)
+    )
+)
+
+PlayJudgmentSound:And(
+    SoundEffect
+    Play(Judgment MinEffectTime)
+)
+PlayFlickSound:And(
+    SoundEffect
+    Play(EffectFlick MinEffectTime)
+)
+
+IsTouchY:And(
+	GreaterOr(TempTouchY Subtract(NoteY 0.2))
+	LessOr(TempTouchY Add(NoteY 0.2))
+)
+
+IsTouchX:And(
+	GreaterOr(TempTouchX Subtract(NoteX 0.2))
+	LessOr(TempTouchX Add(NoteX 0.2))
+)
+
+
+// #0: Initialization
+
+#0.preprocess:Execute(
+    SetShifted(LevelUI *UIMenu *UIAnchorX Subtract(0.05 AspectRatio))
+    SetShifted(LevelUI *UIMenu *UIAnchorY 0.95)
+    SetShifted(LevelUI *UIMenu *UIPivotX 0)
+    SetShifted(LevelUI *UIMenu *UIPivotY 1)
+    SetShifted(LevelUI *UIMenu *UIWidth 0.15)
+    SetShifted(LevelUI *UIMenu *UIHeight 0.15)
+    SetShifted(LevelUI *UIMenu *UIAlpha 1)
+    SetShifted(LevelUI *UIMenu *UIBackground true)
+
+    SetShifted(LevelUI *UIJudgment *UIAnchorX Multiply(AspectRatio 0.7))
+    SetShifted(LevelUI *UIJudgment *UIAnchorY -0.5)
+    SetShifted(LevelUI *UIJudgment *UIPivotX 0.5)
+    SetShifted(LevelUI *UIJudgment *UIPivotY 0)
+    SetShifted(LevelUI *UIJudgment *UIWidth Multiply(0.8 UIJudgmentSize))
+    SetShifted(LevelUI *UIJudgment *UIHeight Multiply(0.2 UIJudgmentSize))
+    SetShifted(LevelUI *UIJudgment *UIAlpha 0)
+
+    SetShifted(LevelUI *UIComboValue *UIAnchorX 0)
+    SetShifted(LevelUI *UIComboValue *UIAnchorY 0)
+    SetShifted(LevelUI *UIComboValue *UIPivotX 0.5)
+    SetShifted(LevelUI *UIComboValue *UIPivotY 0.5)
+    SetShifted(LevelUI *UIComboValue *UIWidth Multiply(2 UIComboSize))
+    SetShifted(LevelUI *UIComboValue *UIHeight Multiply(1 UIComboSize))
+    SetShifted(LevelUI *UIComboValue *UIAlpha Multiply(UIComboAlpha 0.3))
+
+    SetShifted(LevelUI *UIComboText *UIAnchorX 0)
+    SetShifted(LevelUI *UIComboText *UIAnchorY -0.75)
+    SetShifted(LevelUI *UIComboText *UIPivotX 0.5)
+    SetShifted(LevelUI *UIComboText *UIPivotY 0.5)
+    SetShifted(LevelUI *UIComboText *UIWidth Multiply(1 UIComboSize))
+    SetShifted(LevelUI *UIComboText *UIHeight Multiply(0.3 UIComboSize))
+    SetShifted(LevelUI *UIComboText *UIAlpha Multiply(UIComboAlpha 0.3))
+
+    SetShifted(LevelUI *UILifeBar *UIAnchorX Subtract(0.5 AspectRatio))
+    SetShifted(LevelUI *UILifeBar *UIAnchorY -0.95)
+    SetShifted(LevelUI *UILifeBar *UIPivotX 0)
+    SetShifted(LevelUI *UILifeBar *UIPivotY 1)
+    SetShifted(LevelUI *UILifeBar *UIWidth 1.95)
+    SetShifted(LevelUI *UILifeBar *UIHeight 0.3)
+    SetShifted(LevelUI *UILifeBar *UIRotation 90)
+    SetShifted(LevelUI *UILifeBar *UIAlpha 1)
+    SetShifted(LevelUI *UILifeBar *UIHorizontalAlign -1)
+    SetShifted(LevelUI *UILifeBar *UIBackground true)
+
+    SetShifted(LevelUI *UILifeValue *UIAnchorX Subtract(0.5 AspectRatio))
+    SetShifted(LevelUI *UILifeValue *UIAnchorY 0)
+    SetShifted(LevelUI *UILifeValue *UIPivotX 0.5)
+    SetShifted(LevelUI *UILifeValue *UIPivotY 1)
+    SetShifted(LevelUI *UILifeValue *UIWidth 0.6)
+    SetShifted(LevelUI *UILifeValue *UIHeight 0.3)
+    SetShifted(LevelUI *UILifeValue *UIRotation 90)
+    SetShifted(LevelUI *UILifeValue *UIAlpha 1)
+    SetShifted(LevelUI *UILifeValue *UIHorizontalAlign 1)
+
+    SetShifted(LevelUI *UIScoreBar *UIAnchorX Subtract(AspectRatio 0.8))
+    SetShifted(LevelUI *UIScoreBar *UIAnchorY -0.95)
+    SetShifted(LevelUI *UIScoreBar *UIPivotX 0)
+    SetShifted(LevelUI *UIScoreBar *UIPivotY 1)
+    SetShifted(LevelUI *UIScoreBar *UIWidth 1.95)
+    SetShifted(LevelUI *UIScoreBar *UIHeight 0.3)
+    SetShifted(LevelUI *UIScoreBar *UIRotation 90)
+    SetShifted(LevelUI *UIScoreBar *UIAlpha 1)
+    SetShifted(LevelUI *UIScoreBar *UIHorizontalAlign -1)
+    SetShifted(LevelUI *UIScoreBar *UIBackground true)
+
+    SetShifted(LevelUI *UIScoreValue *UIAnchorX Subtract(AspectRatio 0.8))
+    SetShifted(LevelUI *UIScoreValue *UIAnchorY 0)
+    SetShifted(LevelUI *UIScoreValue *UIPivotX 0.5)
+    SetShifted(LevelUI *UIScoreValue *UIPivotY 0)
+    SetShifted(LevelUI *UIScoreValue *UIWidth 0.4)
+    SetShifted(LevelUI *UIScoreValue *UIHeight 0.3)
+    SetShifted(LevelUI *UIScoreValue *UIRotation 270)
+    SetShifted(LevelUI *UIScoreValue *UIAlpha 1)
+    SetShifted(LevelUI *UIScoreValue *UIHorizontalAlign 1)
+
+    Set(LevelBucket 0 -42)
+    Set(LevelBucket 1 42)
+    Set(LevelBucket 2 -92)
+    Set(LevelBucket 3 92)
+    Set(LevelBucket 4 -166)
+    Set(LevelBucket 5 166)
+
+    Set(LevelBucket 6 0)
+    Set(LevelBucket 7 42)
+    Set(LevelBucket 8 0)
+    Set(LevelBucket 9 92)
+    Set(LevelBucket 10 0)
+    Set(LevelBucket 11 166)
+
+    Set(LevelScore *PerfectScoreMultiplier 1)
+    Set(LevelScore *GreatScoreMultiplier 0.8)
+    Set(LevelScore *GoodScoreMultiplier 0.5)
+
+    SetShifted(LevelScore *ConsecutiveGreatScore *ConsecutiveScoreMultiplier 0.01)
+    SetShifted(LevelScore *ConsecutiveGreatScore *ConsecutiveScoreStep 100)
+    SetShifted(LevelScore *ConsecutiveGreatScore *ConsecutiveScoreCap 1000)
+	
+	SetShifted(ArchetypeLife Multiply(2 4) *MissLifeIncrement -100)
+)
+
+#0.updateSequential:Execute(
+    Set(LevelMemory *StageX1 Multiply(AspectRatio -1))
+    Set(LevelMemory *StageX2 AspectRatio)
+    Set(LevelMemory *PosMultiplier Multiply(AspectRatio 0.35))
+    Set(LevelMemory *SizeMultiplier Multiply(AspectRatio 0.17))
+    Set(LevelMemory *NoteScreenTime Divide(3.3785 NoteSpeed))
+    Set(LevelMemory *NoteBaseY1 Subtract(-1.9 SizeMultiplier))
+    Set(LevelMemory *NoteBaseY2 Add(-1.9 SizeMultiplier))
+    Set(LevelMemory *NoteTimeOffset Divide(LevelAudioOffset 1000))
+    Set(LevelMemory *InputOffset Add(DeviceInputOffset Divide(LevelInputOffset 1000)))
+
+    true
+)
+
+
+
+// #1: Stage
+
+#1.shouldSpawn:Equal(Get(EntityInfoArray *State) Despawned)
+
+#1.initialize:Execute(
+    Set(EntityMemory *StageCoverY Lerp(1 -1 StageCover))
+    Set(EntityMemory *JudgeLineAlpha 1)
+    //And(
+    //    StageEffect
+    //    SpawnParticleEffect(
+    //        ParticleEffectJudgeLineL
+    //        StageX1 -0.75
+    //        StageX1 -0.7
+    //        StageX2 -0.7
+    //        StageX2 -0.75
+    //        6
+    //        1
+    //    )
+    //)
+)
+
+#1.touch:Or(
+    Auto
+    And(
+        TempTouchStarted
+        Not(TempTouchOccupied)
+    )
+)
+
+#1.updateParallel:Execute(
+    And(
+        StageCover
+        Draw(
+            TextureStageCover
+            StageX1 StageCoverY
+            StageX1 1
+            StageX2 1
+            StageX2 StageCoverY
+            LayerStageCover
+            1
+        )
+    )
+
+    //1
+	Draw(
+        TextureJudgeSlot
+        -1 0.5
+        -1 1
+        -0.5 1
+        -0.5 0.5
+        0
+        JudgeLineAlpha
+    )
+	//2
+    Draw(
+        TextureJudgeSlot
+        -0.5 0.5
+        -0.5 1
+        0 1
+        0 0.5
+        0
+        JudgeLineAlpha
+    )
+	//3
+    Draw(
+        TextureJudgeSlot
+        0 0.5
+        0 1
+        0.5 1
+        0.5 0.5
+        0
+        JudgeLineAlpha
+    )
+	//4
+    Draw(
+        TextureJudgeSlot
+        0.5 0.5
+        0.5 1
+        1 1
+        1 0.5
+        0
+        JudgeLineAlpha
+    )
+    //5
+	Draw(
+        TextureJudgeSlot
+        -1 0
+        -1 0.5
+        -0.5 0.5
+        -0.5 0
+        0
+        JudgeLineAlpha
+    )
+	//6
+    Draw(
+        TextureJudgeSlot
+        -0.5 0
+        -0.5 0.5
+        0 0.5
+        0 0
+        0
+        JudgeLineAlpha
+    )
+	//7
+    Draw(
+        TextureJudgeSlot
+        0 0
+        0 0.5
+        0.5 0.5
+        0.5 0
+        0
+        JudgeLineAlpha
+    )
+	//8
+    Draw(
+        TextureJudgeSlot
+        0.5 0
+        0.5 0.5
+        1 0.5
+        1 0
+        0
+        JudgeLineAlpha
+    )
+    //9
+	Draw(
+        TextureJudgeSlot
+        -1 -0.5
+        -1 0
+        -0.5 0
+        -0.5 -0.5
+        0
+        JudgeLineAlpha
+    )
+	//10
+    Draw(
+        TextureJudgeSlot
+        -0.5 -0.5
+        -0.5 0
+        0 0
+        0 -0.5
+        0
+        JudgeLineAlpha
+    )
+	//11
+    Draw(
+        TextureJudgeSlot
+        0 -0.5
+        0 0
+        0.5 0
+        0.5 -0.5
+        0
+        JudgeLineAlpha
+    )
+	//12
+    Draw(
+        TextureJudgeSlot
+        0.5 -0.5
+        0.5 0
+        1 0
+        1 -0.5
+        0
+        JudgeLineAlpha
+    )
+    //13
+	Draw(
+        TextureJudgeSlot
+        -1 -1
+        -1 -0.5
+        -0.5 -0.5
+        -0.5 -1
+        0
+        JudgeLineAlpha
+    )
+	//14
+    Draw(
+        TextureJudgeSlot
+        -0.5 -1
+        -0.5 -0.5
+        0 -0.5
+        0 -1
+        0
+        JudgeLineAlpha
+    )
+	//15
+    Draw(
+        TextureJudgeSlot
+        0 -1
+        0 -0.5
+        0.5 -0.5
+        0.5 -1
+        0
+        JudgeLineAlpha
+    )
+	//16
+    Draw(
+        TextureJudgeSlot
+        0.5 -1
+        0.5 -0.5
+        1 -0.5
+        1 -1
+        0
+        JudgeLineAlpha
+    )
+)
+
+
+
+// #2: Tap Note
+
+#2.shouldSpawn:IsNoteOnScreen
+
+#2.initialize:Execute(
+    InitNote
+    And(
+        Auto
+        Execute(
+            And(
+                SoundEffect
+                PlayScheduled(EffectPerfect NoteTime MinEffectTime)
+            )
+            Set(EntityInput *Judgment JudgmentPerfect)
+            Set(EntityInput *Bucket 1)
+        )
+    )
+)
+
+#2.touch:Or(
+    Auto
+    And(
+        Not(InputState)
+        IsNoteInGoodWindow
+        TempTouchStarted
+        Not(TempTouchOccupied)
+        IsTouchX
+        IsTouchY
+        Execute(
+            Set(TemporaryMemory *TempTouchOccupied true)
+            Set(EntityMemory *InputState Terminated)
+            Set(EntityInput *Judgment JudgeSimple(Subtract(TempTouchST InputOffset) NoteTime PerfectWindow GreatWindow GoodWindow))
+            Set(EntityInput *Bucket 1)
+            Set(EntityInput *BucketValue Multiply(1000 Subtract(TempTouchST InputOffset NoteTime)))
+			DestroyParticleEffect(EffectID)
+            PlayTapEffect
+            PlayJudgmentSound
+        )
+    )
+)
+
+#2.updateParallel:And(
+	//IsDebug()
+	Execute(
+		//DebugLog(Subtract(NoteTime Subtract(Time InputOffset)))
+		Or(
+			And(
+				GreaterOr(Time Subtract(NoteTime Multiply(InputOffset -1) NoteScreenTime))
+				Not(EffectID)
+				Execute0(
+					PlayNoteEffect
+				)
+			)
+			And(
+				Greater(Subtract(Time InputOffset NoteTime) GoodWindow)
+				Execute0(
+					Set(EntityMemory *InputState Terminated)
+				)
+			)
+			And(
+				Auto
+				GreaterOr(Time NoteTime)
+				Execute(
+					DestroyParticleEffect(EffectID)
+					PlayTapEffect
+					true
+				)
+			)
+			Equal(InputState Terminated)
+			Greater(Subtract(Time InputOffset NoteTime) GoodWindow)
+		)
+	)
+)
+
+
+
+
+// Constants
+
+true:1
+false:0
+
+Waiting:0
+Spawned:1
+Despawned:2
+
+Waiting:0
+Terminated:1
+
+PerfectWindow:0.042
+GreatWindow:0.092
+GoodWindow:0.166
+
+MinEffectTime:0.02
+
+LayerStageCover:1000
+LayerNote:100
+LayerJudgeLine:0
+
+JudgmentMiss:0
+JudgmentPerfect:1
+JudgmentGreat:2
+JudgmentGood:3
+
+
+
+// Texture identifiers
+
+TextureNote:1001
+TextureSlideNote:2001
+TextureJudgeLine:41000
+TextureJudgeSlot:41001
+TextureStageCover:42000
+
+
+
+// Effect identifiers
+
+EffectMiss:0
+EffectPerfect:1
+EffectGreat:2
+EffectGood:3
+EffectFlick:4
+EffectEmpty:5
+
+
+
+// Particle Effect identifiers
+
+ParticleEffectTapC:110001
+ParticleEffectTapL:120001
+ParticleEffectLaneC:310000
+ParticleEffectSlotL:420000
+ParticleEffectJudgeLineL:520000
+
+NoteParticle:110000
+
+// Block identifiers
+
+LevelMemory:0
+LevelData:1
+LevelOption:2
+LevelTransform:3
+LevelBackground:4
+LevelUI:5
+LevelBucket:6
+LevelScore:7
+LevelLife:8
+
+EntityInfoArray:10
+EntityDataArray:11
+EntitySharedMemoryArray:12
+
+EntityInfo:20
+EntityMemory:21
+EntityData:22
+EntityInput:23
+EntitySharedMemory:24
+
+ArchetypeLife:30
+
+TemporaryMemory:100
+TemporaryData:101
+
+
+
+// Level Memory Layout
+
+*StageX1:0
+*StageX2:1
+*PosMultiplier:2
+*SizeMultiplier:3
+*NoteScreenTime:4
+*NoteBaseY1:5
+*NoteBaseY2:6
+*NoteTimeOffset:7
+*InputOffset:8
+
+StageX1:Get(LevelMemory *StageX1)
+StageX2:Get(LevelMemory *StageX2)
+PosMultiplier:Get(LevelMemory *PosMultiplier)
+SizeMultiplier:Get(LevelMemory *SizeMultiplier)
+NoteScreenTime:Get(LevelMemory *NoteScreenTime)
+NoteBaseY1:Get(LevelMemory *NoteBaseY1)
+NoteBaseY2:Get(LevelMemory *NoteBaseY2)
+NoteTimeOffset:Get(LevelMemory *NoteTimeOffset)
+InputOffset:Get(LevelMemory *InputOffset)
+
+
+
+// Level Data Layout
+
+*Time:0
+*DeltaTime:1
+*AspectRatio:2
+*DeviceAudioOffset:3
+*DeviceInputOffset:4
+
+Time:Get(LevelData *Time)
+DeltaTime:Get(LevelData *DeltaTime)
+AspectRatio:Get(LevelData *AspectRatio)
+DeviceAudioOffset:Get(LevelData *DeviceAudioOffset)
+DeviceInputOffset:Get(LevelData *DeviceInputOffset)
+
+
+
+// Level Option Layout
+
+*Auto:0
+*LevelAudioOffset:1
+*LevelInputOffset:2
+*Speed:3
+*NoteSpeed:4
+*StageCover:5
+*SoundEffect:6
+*NoteEffect:7
+*StageEffect:8
+*UIJudgmentSize:9
+*UIJudgmentAlpha:10
+*UIComboSize:11
+*UIComboAlpha:12
+
+Auto:Get(LevelOption *Auto)
+LevelAudioOffset:Get(LevelOption *LevelAudioOffset)
+LevelInputOffset:Get(LevelOption *LevelInputOffset)
+Speed:Get(LevelOption *Speed)
+NoteSpeed:Get(LevelOption *NoteSpeed)
+StageCover:Get(LevelOption *StageCover)
+SoundEffect:Get(LevelOption *SoundEffect)
+NoteEffect:Get(LevelOption *NoteEffect)
+StageEffect:Get(LevelOption *StageEffect)
+UIJudgmentSize:Get(LevelOption *UIJudgmentSize)
+UIJudgmentAlpha:Get(LevelOption *UIJudgmentAlpha)
+UIComboSize:Get(LevelOption *UIComboSize)
+UIComboAlpha:Get(LevelOption *UIComboAlpha)
+
+
+
+// Level UI Layout
+
+*UIMenu:0
+*UIJudgment:11
+*UIComboValue:22
+*UIComboText:33
+*UIScoreBar:44
+*UIScoreValue:55
+*UILifeBar:66
+*UILifeValue:77
+
+*UIAnchorX:0
+*UIAnchorY:1
+*UIPivotX:2
+*UIPivotY:3
+*UIWidth:4
+*UIHeight:5
+*UIRotation:6
+*UIAlpha:7
+*UIHorizontalAlign:8
+*UIVerticalAlign:9
+*UIBackground:10
+
+
+
+// Level Score Layout
+
+*PerfectScoreMultiplier:0
+*GreatScoreMultiplier:1
+*GoodScoreMultiplier:2
+
+*ConsecutivePerfectScore:3
+*ConsecutiveGreatScore:6
+*ConsecutiveGoodScore:9
+
+*ConsecutiveScoreMultiplier:0
+*ConsecutiveScoreStep:1
+*ConsecutiveScoreCap:2
+
+
+
+// Level Life Layout
+
+*ConsecutivePerfectLife:0
+*ConsecutiveGreatLife:2
+*ConsecutiveGoodLife:4
+
+*ConsecutiveLifeIncrement:0
+*ConsecutiveLifeStep:1
+
+
+
+// Archetype Life Layout
+
+*PerfectLifeIncrement:0
+*GreatLifeIncrement:1
+*GoodLifeIncrement:2
+*MissLifeIncrement:3
+
+
+
+// Entity Info Layout
+
+*Index:0
+*Archetype:1
+*State:2
+
+Index:Get(EntityInfo *Index)
+Archetype:Get(EntityInfo *Archetype)
+State:Get(EntityInfo *State)
+
+
+
+// Entity Input Layout
+
+*Judgment:0
+*Bucket:1
+*BucketValue:2
+
+Judgment:Get(EntityInput *Judgment)
+Bucket:Get(EntityInput *Bucket)
+BucketValue:Get(EntityInput *BucketValue)
+
+
+
+// Touch Temporary Memory Layout
+
+*TempTouchOccupied:0
+
+TempTouchOccupied:Get(TemporaryMemory *TempTouchOccupied)
+
+
+// Touch Temporary Data Layout
+
+*TempTouchID:0
+*TempTouchStarted:1
+*TempTouchEnded:2
+*TempTouchT:3
+*TempTouchST:4
+*TempTouchX:5
+*TempTouchY:6
+*TempTouchSX:7
+*TempTouchSY:8
+*TempTouchDX:9
+*TempTouchDY:10
+*TempTouchVX:11
+*TempTouchVY:12
+*TempTouchVR:13
+*TempTouchVW:14
+
+TempTouchID:Get(TemporaryData *TempTouchID)
+TempTouchStarted:Get(TemporaryData *TempTouchStarted)
+TempTouchEnded:Get(TemporaryData *TempTouchEnded)
+TempTouchT:Get(TemporaryData *TempTouchT)
+TempTouchST:Get(TemporaryData *TempTouchST)
+TempTouchX:Get(TemporaryData *TempTouchX)
+TempTouchY:Get(TemporaryData *TempTouchY)
+TempTouchSX:Get(TemporaryData *TempTouchSX)
+TempTouchSY:Get(TemporaryData *TempTouchSY)
+TempTouchDX:Get(TemporaryData *TempTouchDX)
+TempTouchDY:Get(TemporaryData *TempTouchDY)
+TempTouchVX:Get(TemporaryData *TempTouchVX)
+TempTouchVY:Get(TemporaryData *TempTouchVY)
+TempTouchVR:Get(TemporaryData *TempTouchVR)
+TempTouchVW:Get(TemporaryData *TempTouchVW)
+
+
+
+// #1 Memory Layout
+
+*StageCoverY:0
+
+StageCoverY:Get(EntityMemory *StageCoverY)
+
+*JudgeLineAlpha:1
+
+JudgeLineAlpha:Get(EntityMemory *JudgeLineAlpha)
+
+
+// Note Class Memory Layout
+
+*InputState:32
+*NoteTimeDistance:33
+*NoteScale:34
+*NoteX:35
+*NoteY:36
+*CountX:37
+*CountY:38
+*EffectID:39
+*EffectState:40
+
+
+InputState:Get(EntityMemory *InputState)
+NoteTimeDistance:Get(EntityMemory *NoteTimeDistance)
+NoteScale:Get(EntityMemory *NoteScale)
+NoteX:Get(EntityMemory *NoteX)
+NoteY:Get(EntityMemory *NoteY)
+NoteScale:Get(EntityMemory *NoteScale)
+CountX:Get(EntityMemory *CountX)
+CountY:Get(EntityMemory *CountY)
+EffectID:Get(EntityMemory *EffectID)
+EffectState:Get(EntityMemory *EffectState)
+
+
+// Note Class Data Layout
+
+*NoteSlot:0
+*NoteTime:1
+
+NoteSlot:Get(EntityData *NoteSlot)
+NoteTime:Divide(Add(Get(EntityData *NoteTime) NoteTimeOffset) Speed)
+
+
+
+// #3 Memory Layout
+
+*TerminationTime:0
+
+TerminationTime:Get(EntityMemory *TerminationTime)

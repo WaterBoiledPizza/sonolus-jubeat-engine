@@ -1,0 +1,42 @@
+{
+    "buckets": [
+        {
+            "sprites": [
+                {
+                    "id": 1001,
+                    "x": 0,
+                    "y": 0,
+                    "w": 2,
+                    "h": 2,
+                    "rotation": 0
+                }
+            ]
+        }
+    ],
+    "entities": [
+        {
+            "archetype": 0
+        },
+        {
+            "archetype": 1
+        }
+    ],
+    "archetypes": [
+        {
+            "script": 0
+        },
+        {
+            "script": 1
+        },
+        {
+            "script": 2,
+            "input": true,
+            "data": {
+                "index": 2,
+                "values": [
+                    1
+                ]
+            }
+        }
+    ]
+}
