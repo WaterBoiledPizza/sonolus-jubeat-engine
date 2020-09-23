@@ -1,5 +1,5 @@
 # sonolus-jubeat-engine
-
+A recreation of Jubeat engine in Sonolus
 ## Points to notice
 - Please use the provided skins and particles as they are tailored for Jubeat
   - They may not be suitable in other engines
